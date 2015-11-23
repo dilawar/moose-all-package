@@ -1,0 +1,14 @@
+Source: moose-gui
+Section: science
+Priority: optional
+Maintainer: Dilawar Singh <dilawars@ncbs.res.in>
+Build-Depends: debhelper, cdbs, devscripts, python
+Standards-Version: 3.9.5
+Homepage: http://moose.ncbs.res.in
+
+Package: moose-gui
+Architecture: any
+Depends: python-qt4, moose-python, python
+Description: GUI of moose
+ .
+ GUI frontend of MOOSE neural simulator.
