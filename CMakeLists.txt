@@ -82,7 +82,7 @@ install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-gui/
 install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-examples/
     DESTINATION lib/moose/moose-examples
     COMPONENT moose-gui
-    PATTERN "travis" EXCLUDE
+    PATTERN "_travis" EXCLUDE
     PATTERN "CVS" EXCLUDE
     PATTERN ".git*" EXCLUDE
     )
