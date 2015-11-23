@@ -51,6 +51,8 @@ install(CODE
 
 
 SET(MOOSE_GUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
+
+FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/moose/gui)
 install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-gui/
     DESTINATION lib/moose/gui
     COMPONENT moose-all
