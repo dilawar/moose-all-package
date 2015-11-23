@@ -11,6 +11,11 @@ SET(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-python)
 SET(MOOSE_PYTHON_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/__moose_python)
 FILE(MAKE_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR})
 
+## Options
+option(PACKAGING_ON_LAUNCHPAD "Enable packaing on launchpad" OFF)
+option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
+
+
 message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 add_custom_target(moose_all ALL)
 
@@ -19,6 +24,7 @@ add_custom_command(
     OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     # Pass the environment variable so local installation gets searched.
     COMMAND ${CMAKE_COMMAND} ${MOOSE_PYTHON_SOURCE_DIR}
+    COMMAND $(MAKE)
     WORKING_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR}
     VERBATIM
     )
@@ -30,29 +36,27 @@ add_custom_target(_build_moose_python ALL
 
 add_dependencies(moose_all _build_moose_python)
 
-# Use moose-core cmake file to install its targets.
-install(CODE 
-    "
-    EXECUTE_PROCESS(
-        COMMAND ${CMAKE_COMMAND} -P ${MOOSE_PYTHON_BUILD_DIR}/cmake_install.cmake
-        )"
-    COMPONENT moose-all
-    )
-
-install(CODE
-    "
-    EXECUTE_PROCESS(
-        COMMAND python setup.py install --prefix=${CMAKE_INSTALL_PREFIX} 
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-python/moose-core/python
+IF(NOT PACKAGING_ON_OBS AND NOT PACKAGING_ON_LAUNCHPAD)
+    MESSAGE(STATUS "Not building for Launchpad or OBS")
+    install(CODE
+        "
+        EXECUTE_PROCESS(
+            COMMAND python setup.py install --prefix=${CMAKE_INSTALL_PREFIX} 
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-python/moose-core/python
+            )
+        "
+        COMPONENT moose-gui
         )
-    "
-    COMPONENT moose-gui
-    )
+ELSEIF(PACKAGING_ON_LAUNCHPAD)
+    MESSAGE(STATUS "Packaging on Launchpad. Currently doing nothing")
+ELSEIF(PACKAGING_ON_OBS)
+    MESSAGE(STATUS "Packaging on OBS. Currently doing nothing.")
+ENDIF()
 
 
 SET(MOOSE_GUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
 
-FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/moose/gui)
+#FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/moose/gui)
 install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-gui/
     DESTINATION lib/moose/gui
     COMPONENT moose-all
