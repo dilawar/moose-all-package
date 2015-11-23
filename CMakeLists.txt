@@ -29,11 +29,21 @@ add_custom_command(
     VERBATIM
     )
 
+
 add_custom_target(_build_moose_python ALL
     DEPENDS ${MOOSE_PYTHON_BUILD_DIR}/moose.bin 
     ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     )
 
+# Write a gui launcher.
+SET(MOOSE_GUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
+
+## Following variable is used in configure file.
+SET(MOOSEGUI_DIR /usr/lib/moose/gui)
+CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/package_data/moosegui.in 
+    ${CMAKE_INSTALL_PREFIX}/bin/moosegui
+    )
 add_dependencies(moose_all _build_moose_python)
 
 IF(NOT PACKAGING_ON_OBS AND NOT PACKAGING_ON_LAUNCHPAD)
@@ -54,7 +64,6 @@ ELSEIF(PACKAGING_ON_OBS)
 ENDIF()
 
 
-SET(MOOSE_GUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
 
 #FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/moose/gui)
 install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-gui/
@@ -70,6 +79,8 @@ install(DIRECTORY ${MOOSE_GUI_SOURCE_DIR}/moose-examples/
     PATTERN "CVS" EXCLUDE
     PATTERN ".git*" EXCLUDE
     )
+
+# install the launcher.
 
 ## DO NOT install icon and dekstop file. They cause a lot of issues on various
 ## repositories on open-build-service.
