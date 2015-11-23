@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+# export DH_VERBOSE=1
+export BUILD_DIR_MOOSE=_build
+export CURRDIR=$(shell pwd)
+export PYTHONPATH=$(shell pwd)/../debian/tmp/$(PYTHON_LIBS))
+GUI_BIN=debian/tmp/usr/bin/moosegui
+
+## Here goes the debian make.
+
+%:
+	dh "$@" --with python2
+
+override_dh_auto_clean:
+	rm -rf $(BUILD_DIR_MOOSE)
+
+# consider using -DUSE_VERSIONED_DIR=ON if backporting
+override_dh_auto_configure:
+	echo "Nothing to do here"
+
+override_dh_auto_build:
+	echo "Nothing to do here"
+
+override_dh_auto_install:
+	mkdir -p debian/tmp/usr/lib/moose/moose-examples
+	mkdir -p debian/tmp/usr/bin
+	mkdir -p debian/tmp/usr/lib/moose/gui
+	rsync -azv --cvs-exclude moose-gui/ debian/tmp/usr/lib/moose/gui/
+	rsync -azv --cvs-exclude moose-examples debian/tmp/usr/lib/moose/
+	echo "#!/bin/bash" > $(GUI_BIN)
+	echo "cd /usr/lib/moose/gui && python mgui.py )" >> $(GUI_BIN)
+	chmod a+x $(GUI_BIN)
