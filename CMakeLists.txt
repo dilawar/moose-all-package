@@ -6,7 +6,6 @@ project(moose-all)
 add_custom_target(_moose_static_dependencies ALL)
 # This variable should point to the source code.
 set(MOOSE_CORE_DIRNAME moose-core)
-set(MOOSE_GUI_DIRNAME moose-gui)
 set(MOOSE_VERSION "3.0.2")
 
 ## CMAKE options
@@ -123,50 +122,10 @@ install(CODE
     COMPONENT moose-python
     )
 
-
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/moose-gui/
-    DESTINATION lib/moose/gui
-    COMPONENT moose-gui
-    )
-
-install(PROGRAMS ${CMAKE_SOURCE_DIR}/package_data/moosegui
-    DESTINATION bin
-    COMPONENT moose-gui
-    )
-
-# Keep the examples outside the gui directory
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/moose-examples/
-    DESTINATION lib/moose/moose-examples
-    COMPONENT moose-gui
-    PATTERN "travis" EXCLUDE
-    PATTERN "CVS" EXCLUDE
-    PATTERN ".git*" EXCLUDE
-    )
-
-## DO NOT install icon and dekstop file. They cause a lot of issues on various
-## repositories on open-build-service.
-
-#### Install the icon
-##install(FILES ${CMAKE_SOURCE_DIR}/moose-gui/icons/moose_icon.png 
-##    DESTINATION share/pixmaps
-##    COMPONENT moose-gui
-##    RENAME moose.png
-##    )
-##
-### And the desktop file.
-##install(FILES ${CMAKE_SOURCE_DIR}/moose-core/scripts/moose.desktop
-##    DESTINATION share/applications
-##    COMPONENT moose-gui
-##    )
-##
 ### Tests.
 enable_testing()
 add_test(NAME moose-core 
     COMMAND ctest -R pymoose* --output-on-failure
     WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}
     )
-
-
-####### CPack ###############################
-##include(cmake_moose_cpack.cmake)
 
