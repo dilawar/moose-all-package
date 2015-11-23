@@ -25,16 +25,6 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	cd $(BUILD_DIR_MOOSE) && make install
-	cd moose-python/moose-core/python && python setup.py install --root=../../debian/tmp/moose --install-layout=deb
-	# get the gui
-	mkdir -p debian/tmp/usr/lib/moose/gui
-	mkdir -p debian/tmp/usr/lib/moose/moose-examples
-	rsync -azv --cvs-exclude moose-gui/moose-gui/ debian/tmp/moose/usr/lib/moose/gui/
-	rsync -azv --cvs-exclude moose-gui/moose-examples/ debian/tmp/moose/usr/lib/moose/moose-examples/
-	mkdir -p debian/tmp/usr/bin
-	echo "#!/bin/bash" > $(GUI_BIN)
-	echo "cd /usr/lib/moose/gui && python mgui.py" >> $(GUI_BIN)
-	chmod a+x $(GUI_BIN)
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
