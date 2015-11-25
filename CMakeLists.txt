@@ -2,9 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 ## Now setting up project.
 # A dummy target to add dependencies later.
 project(moose-all)
-
-set(MOOSE_PYTHON_DIRNAME moose-python)
-set(MOOSE_GUI_DIRNAME moose-gui)
 set(MOOSE_VERSION "3.0.2")
 
 SET(MOOSE_PYTHON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-python)
@@ -36,6 +33,22 @@ add_custom_target(_build_moose_python ALL
     ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     )
 add_dependencies(moose_all _build_moose_python)
+
+# build moose-gui.
+set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        ${MOOSE_GUI_DIR}
+    COMMAND $(MAKE)
+    COMMAND $(MAKE) install
+    WORKING_DIRECTORY ${MOOSE_GUI_DIR}
+    VERBATIM
+    )
+add_custom_target(_build_moose_gui ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
+    )
+add_dependencies(moose_all _build_moose_gui)
 
 ## Tests.
 enable_testing()
