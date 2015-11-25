@@ -16,11 +16,13 @@ option(PACKAGING_ON_OBS "If we are packaging on OBS" OFF)
 message(STATUS "CMAKE_INSTALL_PREFIX : ${CMAKE_INSTALL_PREFIX}")
 add_custom_target(moose_all ALL)
 
-# Add custom target
+# NOTE: Make sure to install moose-python and moose-gui to differnt prefixes.
+# Otherwise each call of make install with overwrite.
+SET(MOOSE_PYTHON_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_python_)
 add_custom_command(
     OUTPUT ${MOOSE_PYTHON_BUILD_DIR}/moose.bin ${MOOSE_PYTHON_BUILD_DIR}/moose-${MOOSE_VERSION}.tar.gz
     # Pass the environment variable so local installation gets searched.
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
         ${MOOSE_PYTHON_SOURCE_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
@@ -36,9 +38,11 @@ add_dependencies(moose_all _build_moose_python)
 
 # build moose-gui.
 set(MOOSE_GUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moose-gui)
+set(MOOSE_GUI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moose_gui_)
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moosegui
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    COMMAND ${CMAKE_COMMAND} 
+        -DCMAKE_INSTALL_PREFIX=${MOOSE_GUI_INSTALL_DIR}
         ${MOOSE_GUI_DIR}
     COMMAND $(MAKE)
     COMMAND $(MAKE) install
@@ -49,6 +53,15 @@ add_custom_target(_build_moose_gui ALL
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moosegui
     )
 add_dependencies(moose_all _build_moose_gui)
+
+# Leading character is very important.
+INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
+    DESTINATION usr
+    )
+
+INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
+    DESTINATION usr
+    )
 
 ## Tests.
 enable_testing()
