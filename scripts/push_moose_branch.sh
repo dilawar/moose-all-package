@@ -1,7 +1,8 @@
 #!/bin/bash
 echo "Updating moose-master branch in subtree"
 (
-git subtree push --prefix moose-core https://github.com/BhallaLab/moose-core master --squash
-git subtree push --prefix moose-gui https://github.com/BhallaLab/moose-gui master --squash
-git subtree push --prefix moose-examples https://github.com/BhallaLab/moose-examples master --squash
+git subtree push --prefix moose-python \
+    https://github.com/BhallaLab/moose-python-package master --squash
+git subtree push --prefix moose-gui \
+    https://github.com/BhallaLab/moose-gui-package master --squash
 )

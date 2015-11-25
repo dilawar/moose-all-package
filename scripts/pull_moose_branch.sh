@@ -1,7 +1,8 @@
 #!/bin/bash
+
+# NOTE: notice that we are using moose-python-package etc repositories.
 echo "Updating moose branches in subtree"
 (
-git subtree pull --prefix moose-core https://github.com/BhallaLab/moose-core master --squash
-git subtree pull --prefix moose-gui https://github.com/BhallaLab/moose-gui master --squash
-git subtree pull --prefix moose-examples https://github.com/BhallaLab/moose-examples master --squash
+git subtree pull --prefix moose-python https://github.com/BhallaLab/moose-python-package master --squash
+git subtree pull --prefix moose-gui https://github.com/BhallaLab/moose-gui-package master --squash
 )
