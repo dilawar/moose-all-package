@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+# export DH_VERBOSE=1
+
+## Here goes the debian make.
+
+%:
+	dh "$@" --with python2
+
+override_dh_auto_clean:
+	rm -rf $(BUILD_DIR_MOOSE)
+
+# consider using -DUSE_VERSIONED_DIR=ON if backporting
+override_dh_auto_configure:
+	echo "Nothing to do here"
+
+override_dh_auto_build:
+	mkdir -p debian/tmp/usr/lib/moose/gui
+	mkdir -p debian/tmp/usr/lib/moose/moose-examples
+	cmake -DCMAKE_INSTALL_PREFIX=debian/tmp/usr .
+	make
+
+override_dh_auto_install:
+	make install
