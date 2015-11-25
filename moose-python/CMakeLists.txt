@@ -103,22 +103,47 @@ add_custom_target(_build_moose_core ALL
 
 add_dependencies(_build_moose_core _moose_static_dependencies)
 
+# moose script
+SET(MOOSE_BIN_PATH /usr/bin)
+CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/moose.in
+    ${CMAKE_CURRENT_BINARY_DIR}/moose
+    )
+
 # Use moose-core cmake file to install its targets.
 install(CODE 
     "
     EXECUTE_PROCESS(
         COMMAND ${CMAKE_COMMAND} -P ${MOOSE_CORE_BUILD_DIR}/cmake_install.cmake
         )"
-    COMPONENT moose-core
-    )
+        COMPONENT moose-core
+        )
+
+# This step will differ on launchpad or obs
+SET(PYMOOSE_INSTALL_ARGS --prefix ${CMAKE_INSTALL_PREFIX})
+IF(NOT PACKAGING_ON_OBS AND NOT PACKAGING_ON_LAUNCHPAD)
+    MESSAGE(STATUS "Not building for Launchpad or OBS")
+    SET(PYMOOSE_INSTALL_ARGS --prefix ${CMAKE_INSTALL_PREFIX})
+ELSEIF(PACKAGING_ON_LAUNCHPAD)
+    MESSAGE(STATUS "Packaging on Launchpad. Currently doing nothing")
+    SET(PYMOOSE_INSTALL_ARGS --root=${CMAKE_INSTALL_PREFIX} --install-layout=deb)
+ELSEIF(PACKAGING_ON_OBS)
+    MESSAGE(STATUS "Packaging on OBS. Currently doing nothing.")
+    SET(PYMOOSE_INSTALL_ARGS --prefix=${CMAKE_INSTALL_PREFIX}) 
+ENDIF()
 
 install(CODE
     "
     EXECUTE_PROCESS(
-        COMMAND python setup.py install --prefix=${CMAKE_INSTALL_PREFIX} 
+        COMMAND python setup.py install ${PYMOOSE_INSTALL_ARGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-core/python
         )
     "
+    COMPONENT moose-python
+    )
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
+    DESTINATION bin
     COMPONENT moose-python
     )
 
