@@ -9,6 +9,7 @@ Homepage: http://moose.ncbs.res.in
 Package: moose-gui
 Architecture: any
 Depends: python-qt4, moose-python, python
+Replaces: moose
 Description: GUI of moose
  .
  GUI frontend of MOOSE neural simulator.
