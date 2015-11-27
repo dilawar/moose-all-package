@@ -57,10 +57,12 @@ add_dependencies(moose_all _build_moose_gui)
 # Leading character is very important.
 INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     DESTINATION usr
+    USE_SOURCE_PERMISSIONS
     )
 
 INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
     DESTINATION usr
+    USE_SOURCE_PERMISSIONS
     )
 
 ## Tests.
