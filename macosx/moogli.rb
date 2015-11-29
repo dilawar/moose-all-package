@@ -14,8 +14,7 @@ class Moogli < Formula
   def install
     system "cmake", ".", *std_cmake_args
     system "make"
-    system "python", "moogli/cmake_modules/setup.py", "install", \
-        "--prefix=#{prefix}", "--record=installed.txt"
+    system "python", *Language::Python.setup_install_args(prefix)
   end
 
   test do
