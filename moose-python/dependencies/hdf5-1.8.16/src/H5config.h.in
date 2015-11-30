@@ -7,9 +7,6 @@
    writing. */
 #undef CLEAR_MEMORY
 
-/* Define if C++ compiler recognizes offsetof */
-#undef CXX_HAVE_OFFSETOF
-
 /* Define the default plugins path to compile */
 #undef DEFAULT_PLUGINDIR
 
