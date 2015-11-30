@@ -70,6 +70,12 @@ if(NOT LIBSBML_FOUND)
     include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_sbml.cmake)
 endif() 
 
+find_package(HDF5)
+IF(NOT FOUND_HDF5)
+    MESSAGE("++ HDF5 not found. Building static hdf5")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_hdf.cmake)
+    SET(HDF5_STATIC_HOME ${HDF5_INSTALL_DIR})
+ENDIF(NOT FOUND_HDF5)
 
 ## Now build MOOSE
 SET(MOOSE_CORE_BUILD_DIR ${CMAKE_BINARY_DIR}/_moose-core)
@@ -85,6 +91,7 @@ add_custom_command(
         -DWITH_DOC:BOOL=${WITH_DOC}
         -DGSL_STATIC_HOME=${GSL_INSTALL_DIR}
         -DSBML_STATIC_HOME=${SBML_INSTALL_DIR}
+        -DHDF5_STATIC_HOME=${HDF5_INSTALL_DIR}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_SKIP_RPATH=ON
         ${MOOSE_SOURCE_DIRECTORY}
