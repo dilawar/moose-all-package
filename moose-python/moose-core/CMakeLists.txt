@@ -87,6 +87,10 @@ option(SBML_STATIC_HOME
     "installation prefix where static sbml library can be found"
     OFF
     )
+option(HDF5_STATIC_HOME
+    "installation prefix where static hdf5 library can be found"
+    OFF
+    )
 
 ################################# CMKAE MACROS #################################
 
@@ -149,6 +153,8 @@ if(GPROF AND DEBUG)
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-pg")
 endif()
 
+################################### SETUP BUILD ################################
+
 # DEPENDENCIES
 find_package(LIBSBML)
 if(SBML_STATIC_HOME)
@@ -171,7 +177,6 @@ if(LIBSBML_FOUND)
     find_package(LibXML2 REQUIRED)
 endif()
 
-################################### SETUP BUILD ################################
 include_directories(msg basecode)
 add_executable(moose.bin basecode/main.cpp)
 
@@ -204,13 +209,31 @@ ENDIF()
 include_directories(${GSL_INCLUDE_DIR})
 
 ## Setup hdf5
-find_package(HDF5)
-if(FOUND_HDF5)
+IF(HDF5_STATIC_HOME)
+    SET(HDF5_INCLUDE_DIR "${HDF5_STATIC_HOME}/include")
+    find_library(HDF5_LIBRARY 
+        NAME libhdf5-static.a
+        PATHS ${HDF5_STATIC_HOME}/lib ${HDF5_STATIC_HOME}/lib64
+        NO_DEFAULT_PATH
+        )
+    find_library(HDF5_HL_LIBRARY
+        NAME libhdf5_hl-static.a
+        PATHS ${HDF5_STATIC_HOME}/lib ${HDF5_STATIC_HOME}/lib64
+        NO_DEFAULT_PATH
+        )
+    SET(HDF5_LIBRARIES ${HDF5_LIBRARY} ${HDF5_HL_LIBRARY})
     add_definitions(-DUSE_HDF5)
     include_directories(${HDF5_INCLUDE_DIR})
-else(FOUND_HDF5)
-    message("++ HDF5 not found. Disabling support")
-endif(FOUND_HDF5)
+ELSE(HDF5_STATIC_HOME)
+    find_package(HDF5)
+    if(FOUND_HDF5)
+        add_definitions(-DUSE_HDF5)
+        include_directories(${HDF5_INCLUDE_DIR})
+    else(FOUND_HDF5)
+        message(STATUS "HDF5 not found. Disabling support")
+    endif(FOUND_HDF5)
+ENDIF(HDF5_STATIC_HOME)
+
 
 find_package(Termcap)
 find_package(Readline)
@@ -274,7 +297,9 @@ set(SYSTEM_SHARED_LIBS ${LibXML2_LIBRARIES})
 # If CMAKE_STATIC_LIBRARIES are mentiond on command line, use it as list.
 set(STATIC_LIBRARIES  "")
 
-if(FOUND_HDF5)
+if(HDF5_STATIC_HOME)
+    list(APPEND STATIC_LIBRARIES ${HDF5_LIBRARIES})
+elseif(FOUND_HDF5)
     list(APPEND SYSTEM_SHARED_LIBS ${HDF5_LIBRARIES})
 endif()
 
@@ -381,16 +406,7 @@ if(WITH_PYTHON)
     message("++ Building native python extension of MOOSE")
     set(PYMOOSE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python/moose")
 
-    find_package(NumpyHeaders)
-    if(PYTHON_NUMPY_FOUND)
-        add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION)
-        include_directories(${PYTHON_NUMPY_INCLUDE_DIR})
-        add_definitions(-DUSE_NUMPY)
-    else()
-        message(WARNING "Could not find numpy/arrayobject.h in usual places")
-        add_definitions(-UUSE_NUMPY)
-    endif()
-
+    find_package(NumPy REQUIRED)
     find_package(PythonDev REQUIRED)
     include_directories(${PYTHON_INCLUDE_DIRS})
     add_subdirectory(pymoose)
