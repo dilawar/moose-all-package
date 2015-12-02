@@ -385,6 +385,7 @@ if (BUILD_SHARED_LIBS)
   set (LINK_SHARED_LIBS ${LINK_LIBS})
 endif (BUILD_SHARED_LIBS)
 set (H5_ENABLE_STATIC_LIB YES)
+add_definitions ( -fPIC )
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #-----------------------------------------------------------------------------
