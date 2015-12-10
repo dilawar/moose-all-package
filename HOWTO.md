@@ -1,4 +1,4 @@
-This document describes the pipeline used to pack MOOSE.
+This document describes the pipeline for packing MOOSE using OpenBuildService/Launchpad. And how to build a standalone dmg file for macosx.
 
 # Whole pipeline 
 
@@ -42,11 +42,7 @@ This should trigger the build of moose-gui package on launchad.
 
 ## moose-all
 
-This package is sum of moose-python and moose-gui. We use
-https://github.com/BhallaLab/moose-all-package  repository for this. This repo
-keeps https://github.com/BhallaLab/moose-python-package and
-https://github.com/BhallaLab/moose-gui-package repositories as subtree. Unless these
-two repositories are updated, nothing new will appear in this repo. 
+This package is sum of moose-python and moose-gui. We use https://github.com/BhallaLab/moose-all-package  repository for this. This repo keeps https://github.com/BhallaLab/moose-python-package and https://github.com/BhallaLab/moose-gui-package repositories as subtree. Unless these two repositories are updated, nothing new will appear in this repo. 
 
     $ git clone https://github.com/BhallaLab/moose-all-package
     $ cd moose-all-package 
@@ -94,4 +90,6 @@ This keeps [moose-gui](https://github.com/BhallaLab/moose-gui) and
 Folder `debian` keeps the required debian files. This repo is added to launchpad
 to build `moose-gui` package.
 
+# On MacOSX
 
+Just run the script `./macosx/build_dmg_image_using_brew.sh` which should create a dmg file with MOOSE installed in it. After that to cleanup the installation, run `./macosx/release_dmg_file.sh`. Then, compress the dmg for distribution. 
