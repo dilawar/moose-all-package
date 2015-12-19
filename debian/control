@@ -10,6 +10,7 @@ Package: moose-gui
 Architecture: any
 Depends: python-qt4, moose-python, python
 Replaces: moose
-Description: GUI of moose
+Suggests: moogli
+Description: GUI for moose simulator
  .
  GUI frontend of MOOSE neural simulator.
