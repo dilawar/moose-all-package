@@ -54,6 +54,25 @@ add_custom_target(_build_moose_gui ALL
     )
 add_dependencies(moose_all _build_moose_gui)
 
+# Build moogli
+set(MOOGLI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/moogli)
+set(MOOGLI_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli)
+SET(MOOGLI_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/_moogli_build)
+FILE(MAKE_DIRECTORY ${MOOGLI_BIN_DIR})
+add_custom_command(
+    OUTPUT ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
+    COMMAND ${CMAKE_COMMAND} 
+        -DCMAKE_INSTALL_PREFIX=${MOOGLI_INSTALL_DIR} ${MOOGLI_SRC_DIR}
+    COMMAND $(MAKE)
+    COMMAND $(MAKE) install
+    WORKING_DIRECTORY ${MOOGLI_BIN_DIR}
+    VERBATIM
+    )
+add_custom_target(_build_moogli ALL
+    DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
+    )
+add_dependencies(moose_all _build_moogli)
+
 # Leading character is very important.
 INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     DESTINATION usr
@@ -61,6 +80,11 @@ INSTALL(DIRECTORY ${MOOSE_GUI_INSTALL_DIR}/
     )
 
 INSTALL(DIRECTORY ${MOOSE_PYTHON_INSTALL_DIR}/
+    DESTINATION usr
+    USE_SOURCE_PERMISSIONS
+    )
+
+INSTALL(DIRECTORY ${MOOGLI_INSTALL_DIR}
     DESTINATION usr
     USE_SOURCE_PERMISSIONS
     )
