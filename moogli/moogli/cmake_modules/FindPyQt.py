@@ -30,7 +30,7 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-import PyQt4.pyqtconfig
+import pyqtconfig
 
 pyqtcfg = PyQt4.pyqtconfig.Configuration()
 print("pyqt_version:%06.0x" % pyqtcfg.pyqt_version)
