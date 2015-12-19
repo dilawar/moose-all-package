@@ -1,2 +1,2 @@
 #!/bin/bash
-( cd ${MOOSEGUI_DIR} && python mgui.py )
+cd ${MOOSEGUI_DIR} && python mgui.py &
