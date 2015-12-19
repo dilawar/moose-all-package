@@ -5,4 +5,6 @@ echo "Adding master branch in subtree"
         https://github.com/BhallaLab/moose-python-package master --squash
     git subtree add  --prefix moose-gui \
         https://github.com/BhallaLab/moose-gui-package master --squash
+    git subtree add --prefix moogli \
+        https://github.com/BhallaLab/moogli  --squash
 )

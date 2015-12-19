@@ -5,4 +5,6 @@ git subtree push --prefix moose-python \
     https://github.com/BhallaLab/moose-python-package master --squash
 git subtree push --prefix moose-gui \
     https://github.com/BhallaLab/moose-gui-package master --squash
+git subtree push --prefix moogli \
+    https://github.com/BhallaLab/moogli master --squash
 )
