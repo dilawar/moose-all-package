@@ -27,46 +27,51 @@
 # PYQT4_SIP_FLAGS - The SIP flags used to build PyQt.
 
 IF(EXISTS PYQT4_VERSION)
-  # Already in cache, be silent
-  SET(PYQT4_FOUND TRUE)
+    # Already in cache, be silent
+    SET(PYQT4_FOUND TRUE)
 ELSE(EXISTS PYQT4_VERSION)
 
-  FIND_FILE(_find_pyqt_py FindPyQt.py PATHS ${CMAKE_MODULE_PATH})
+    FIND_FILE(_find_pyqt_py FindPyQt.py PATHS ${CMAKE_MODULE_PATH})
 
-  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${_find_pyqt_py} OUTPUT_VARIABLE pyqt_config)
-  IF(pyqt_config)
-    STRING(REGEX MATCH "^pyqt_version:([^\n]+).*$" _dummy ${pyqt_config})
-    SET(PYQT4_VERSION "${CMAKE_MATCH_1}" CACHE STRING "PyQt4's version as a 6-digit hexadecimal number")
+    FIND_PACKAGE(PythonInterp REQUIRED)
+    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${_find_pyqt_py} OUTPUT_VARIABLE pyqt_config)
+    MESSAGE("DEBUG ${pyqt_config}")
 
-    STRING(REGEX MATCH ".*\npyqt_version_str:([^\n]+).*$" _dummy ${pyqt_config})
-    SET(PYQT4_VERSION_STR "${CMAKE_MATCH_1}" CACHE STRING "PyQt4's version as a human-readable string")
+    IF(pyqt_config)
+        STRING(REGEX MATCH "^pyqt_version:([^\n]+).*$" _dummy ${pyqt_config})
+        SET(PYQT4_VERSION "${CMAKE_MATCH_1}" CACHE STRING "PyQt4's version as a 6-digit hexadecimal number")
 
-    STRING(REGEX MATCH ".*\npyqt_version_tag:([^\n]+).*$" _dummy ${pyqt_config})
-    SET(PYQT4_VERSION_TAG "${CMAKE_MATCH_1}" CACHE STRING "The Qt4 version tag used by PyQt4's .sip files")
+        STRING(REGEX MATCH ".*\npyqt_version_str:([^\n]+).*$" _dummy ${pyqt_config})
+        SET(PYQT4_VERSION_STR "${CMAKE_MATCH_1}" CACHE STRING "PyQt4's version as a human-readable string")
 
-    STRING(REGEX MATCH ".*\npyqt_sip_dir:([^\n]+).*$" _dummy ${pyqt_config})
-    SET(PYQT4_SIP_DIR "${CMAKE_MATCH_1}" CACHE FILEPATH "The base directory where PyQt4's .sip files are installed")
+        STRING(REGEX MATCH ".*\npyqt_version_tag:([^\n]+).*$" _dummy ${pyqt_config})
+        SET(PYQT4_VERSION_TAG "${CMAKE_MATCH_1}" CACHE STRING "The Qt4 version tag used by PyQt4's .sip files")
 
-    STRING(REGEX MATCH ".*\npyqt_sip_flags:([^\n]+).*$" _dummy ${pyqt_config})
-    SET(PYQT4_SIP_FLAGS "${CMAKE_MATCH_1}" CACHE STRING "The SIP flags used to build PyQt4")
+        STRING(REGEX MATCH ".*\npyqt_sip_dir:([^\n]+).*$" _dummy ${pyqt_config})
+        SET(PYQT4_SIP_DIR "${CMAKE_MATCH_1}" CACHE FILEPATH "The base directory where PyQt4's .sip files are installed")
 
-    IF(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
-      MESSAGE(WARNING "The base directory where PyQt4's SIP files are installed could not be determined. This usually means PyQt4 was built with its new build system and pyqtconfig.py is not present.\n"
-                      "Please set the PYQT4_SIP_DIR variable manually.")
-    ELSE(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
-      SET(PYQT4_FOUND TRUE)
-    ENDIF(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
-  ENDIF(pyqt_config)
+        STRING(REGEX MATCH ".*\npyqt_sip_flags:([^\n]+).*$" _dummy ${pyqt_config})
+        SET(PYQT4_SIP_FLAGS "${CMAKE_MATCH_1}" CACHE STRING "The SIP flags used to build PyQt4")
 
-  IF(PYQT4_FOUND)
-    IF(NOT PYQT4_FIND_QUIETLY)
-      MESSAGE(STATUS "Found PyQt4 version: ${PYQT4_VERSION_STR}")
-    ENDIF(NOT PYQT4_FIND_QUIETLY)
-  ELSE(PYQT4_FOUND)
-    IF(PYQT4_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find Python")
-    ENDIF(PYQT4_FIND_REQUIRED)
-  ENDIF(PYQT4_FOUND)
+        IF(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
+            MESSAGE(WARNING "The base directory where PyQt4's SIP files are installed could not be determined. This usually means PyQt4 was built with its new build system and pyqtconfig.py is not present.\n"
+                "Please set the PYQT4_SIP_DIR variable manually.")
+        ELSE(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
+            SET(PYQT4_FOUND TRUE)
+        ENDIF(NOT IS_DIRECTORY "${PYQT4_SIP_DIR}")
+    ELSE()
+        MESSAGE("|| Could not find pyqt4 using ${_find_pyqt_py}")
+    ENDIF(pyqt_config)
+
+    IF(PYQT4_FOUND)
+        IF(NOT PYQT4_FIND_QUIETLY)
+            MESSAGE(STATUS "Found PyQt4 version: ${PYQT4_VERSION_STR}")
+        ENDIF(NOT PYQT4_FIND_QUIETLY)
+    ELSE(PYQT4_FOUND)
+        IF(PYQT4_FIND_REQUIRED)
+            MESSAGE(FATAL_ERROR "Could not find Python")
+        ENDIF(PYQT4_FIND_REQUIRED)
+    ENDIF(PYQT4_FOUND)
 
 ENDIF(EXISTS PYQT4_VERSION)
 
