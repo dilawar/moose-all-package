@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-## Now setting up project.
+
 # A dummy target to add dependencies later.
 project(moose-all)
 set(MOOSE_VERSION "3.0.2")
@@ -96,3 +96,5 @@ add_test(NAME moose-core
     WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}
     )
 
+######### CPACK ###############################################################
+include(moose_cpack.cmake)
