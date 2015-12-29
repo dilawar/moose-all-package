@@ -133,22 +133,6 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
      )
 
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
-=======
-SET(MOOSE_BIN_PATH /usr/bin)
-CONFIGURE_FILE(
-    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/moose.in
-    ${CMAKE_CURRENT_BINARY_DIR}/moose
-    )
-
-# Use moose-core cmake file to install its targets.
-install(CODE 
-    "
-    EXECUTE_PROCESS(
-        COMMAND ${CMAKE_COMMAND} -P ${MOOSE_CORE_BUILD_DIR}/cmake_install.cmake
-        )"
-        COMPONENT moose-core
-        )
->>>>>>> 14c734d37b4ae42a2eb5776b61ceab6823958652
 
 # This step will differ on launchpad or obs
 SET(PYMOOSE_INSTALL_ARGS --prefix ${CMAKE_INSTALL_PREFIX})
@@ -173,12 +157,6 @@ install(CODE
     COMPONENT moose-python
     )
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
-    DESTINATION bin
-    COMPONENT moose-python
-    )
-
->>>>>>> 14c734d37b4ae42a2eb5776b61ceab6823958652
 ### Tests.
 enable_testing()
 add_test(NAME moose-core 
