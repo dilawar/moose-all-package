@@ -25,7 +25,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
         ${MOOSE_PYTHON_SOURCE_DIR}
     COMMAND $(MAKE)
-    COMMAND $(MAKE) install
+    COMMAND $(CMAKE_COMMAND) -DCOMMAND=moose-python -P cmake_install.cmake
     WORKING_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR}
     VERBATIM
     )
@@ -68,9 +68,11 @@ add_custom_command(
     WORKING_DIRECTORY ${MOOGLI_BIN_DIR}
     VERBATIM
     )
+
 add_custom_target(_build_moogli ALL
     DEPENDS ${MOOGLI_SRC_DIR}/moogli/core/_moogli.so
     )
+
 add_dependencies(moose_all _build_moogli)
 
 # Leading character is very important.
