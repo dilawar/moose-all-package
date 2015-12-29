@@ -111,20 +111,28 @@ add_custom_target(_build_moose_core ALL
 add_dependencies(_build_moose_core _moose_static_dependencies)
 
 # moose script
-SET(MOOSE_BIN_PATH /usr/bin)
-CONFIGURE_FILE(
-    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/moose.in
-    ${CMAKE_CURRENT_BINARY_DIR}/moose
-    )
-
 # Use moose-core cmake file to install its targets.
-install(CODE 
-    "
-    EXECUTE_PROCESS(
-        COMMAND ${CMAKE_COMMAND} -P ${MOOSE_CORE_BUILD_DIR}/cmake_install.cmake
-        )"
-        COMPONENT moose-core
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+    MESSAGE(AUTHOR_WARNING "moose-core installation is for debugging purpose.")
+    MESSAGE(STATUS "Installing core component because of debug mode")
+    SET(MOOSE_BIN_PATH /usr/bin)
+    CONFIGURE_FILE(
+        ${CMAKE_CURRENT_SOURCE_DIR}/scripts/moose.in
+        ${CMAKE_CURRENT_BINARY_DIR}/moose
         )
+    install(CODE 
+        "
+        EXECUTE_PROCESS(
+            COMMAND ${CMAKE_COMMAND} -P ${MOOSE_CORE_BUILD_DIR}/cmake_install.cmake
+        )"
+       COMPONENT moose-core
+     )
+    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
+     DESTINATION bin
+     COMPONENT moose-core
+     )
+
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 # This step will differ on launchpad or obs
 SET(PYMOOSE_INSTALL_ARGS --prefix ${CMAKE_INSTALL_PREFIX})
@@ -146,11 +154,6 @@ install(CODE
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-core/python
         )
     "
-    COMPONENT moose-python
-    )
-
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/moose
-    DESTINATION bin
     COMPONENT moose-python
     )
 

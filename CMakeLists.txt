@@ -25,7 +25,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${MOOSE_PYTHON_INSTALL_DIR}
         ${MOOSE_PYTHON_SOURCE_DIR}
     COMMAND $(MAKE)
-    COMMAND $(CMAKE_COMMAND) -DCOMMAND=moose-python -P cmake_install.cmake
+    COMMAND ${CMAKE_COMMAND} -P cmake_install.cmake
     WORKING_DIRECTORY ${MOOSE_PYTHON_BUILD_DIR}
     VERBATIM
     )
