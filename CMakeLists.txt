@@ -66,7 +66,7 @@ endif()
 ## SBML
 find_package(LIBSBML)
 if(NOT LIBSBML_FOUND)
-    MESSAGE("++ LIBSBML NOT FOUND. Building local SBML")
+    MESSAGE(STATUS "++ LIBSBML NOT FOUND. Building local SBML")
     include(${CMAKE_CURRENT_SOURCE_DIR}/build_static_sbml.cmake)
 endif() 
 
@@ -151,7 +151,7 @@ install(CODE
     "
     EXECUTE_PROCESS(
         COMMAND python setup.py install ${PYMOOSE_INSTALL_ARGS}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/moose-core/python
+        WORKING_DIRECTORY ${MOOSE_CORE_BUILD_DIR}/python
         )
     "
     COMPONENT moose-python

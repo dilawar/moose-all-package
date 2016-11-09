@@ -1,4 +1,4 @@
-MESSAGE("+++ Building local sbml")
+MESSAGE(STATUS "+++ Building local sbml")
 SET(SBML_INSTALL_DIR ${CMAKE_BINARY_DIR}/_libsbml_static)
 FILE(MAKE_DIRECTORY ${SBML_INSTALL_DIR})
 
@@ -21,9 +21,7 @@ ADD_CUSTOM_COMMAND(
     VERBATIM
     )
 
-ADD_CUSTOM_TARGET(_libsml ALL 
-    DEPENDS ${STATIC_SBML_LIBRARY}
-    )
+ADD_CUSTOM_TARGET(_libsml ALL DEPENDS ${STATIC_SBML_LIBRARY})
 
 set(ENV{LIBSBML_DIR} ${SBML_INSTALL_DIR})
 # With option ALL it runs every time.
