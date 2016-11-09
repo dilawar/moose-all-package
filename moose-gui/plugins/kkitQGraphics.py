@@ -153,20 +153,22 @@ class PoolItem(KineticsDisplayItem):
                         +PoolItem.fontMetrics.width('  '), 
                         self.gobj.boundingRect().height())
         self.bg.setPen(Qt.QColor(0,0,0,0))
-        self.gobj.setPos(PoolItem.fontMetrics.width('  '), 0)
+        self.gobj.setPos(PoolItem.fontMetrics.width(' '), 0)
     def setDisplayProperties(self,x,y,textcolor,bgcolor):
         """Set the display properties of this item."""
-        
         self.setGeometry(x, y,self.gobj.boundingRect().width()
-                        +PoolItem.fontMetrics.width('  '), 
+                        +PoolItem.fontMetrics.width(''), 
                         self.gobj.boundingRect().height())
         self.bg.setBrush(QtGui.QBrush(bgcolor))
     
     def refresh(self,scale):
         fontsize = KineticsDisplayItem.defaultFontSize*scale
-        font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
+        font = QtGui.QFont(KineticsDisplayItem.defaultFontName)
+        if (fontsize < 1):
+            fontsize = self.gobj.font().pointSize()
         font.setPointSize(fontsize)
-        self.gobj.setFont(PoolItem.font)
+        #self.gobj.setFont(PoolItem.font)
+        self.gobj.setFont(font)
 
     def boundingRect(self):
         ''' reimplimenting boundingRect for redrawning '''
@@ -181,13 +183,14 @@ class PoolItem(KineticsDisplayItem):
         self.bg.setBrush(QtGui.QBrush(QtGui.QColor(bgcolor)))
         #pass
 
-    def updateRect(self,ratio):
-        width = self.gobj.boundingRect().width()+PoolItem.fontMetrics.width('  ')
+    def updateRect(self,ratio=1.0):
+        width = self.gobj.boundingRect().width()+PoolItem.fontMetrics.width(' ')
         height = self.gobj.boundingRect().height()
         adjustw = width*ratio
         adjusth = height*ratio
-        self.bgColor.setRect(width/2-abs(adjustw/2),height/2-abs(adjusth/2),adjustw, adjusth)
+        self.bg.setRect(width/2-abs(adjustw/2),height/2-abs(adjusth/2),adjustw, adjusth)
         #self.bg.setRect(0,0,self.gobj.boundingRect().width()*ratio+PoolItem.fontMetrics.width('  '), self.gobj.boundingRect().height()*ratio)
+    
     def returnColor(self):
         return (self.bg.brush().color())
 
@@ -230,6 +233,8 @@ class PoolItemCircle(PoolItem):
     def refresh(self,scale):
         fontsize = KineticsDisplayItem.defaultFontSize*scale
         font =QtGui.QFont(KineticsDisplayItem.defaultFontName)
+        if (fontsize < 1):
+            fontsize = self.gobj.font().pointSize()
         font.setPointSize(fontsize)
         self.gobj.setFont(font)    
 
@@ -261,7 +266,9 @@ class TableItem(KineticsDisplayItem):
         path.lineTo((TableItem.defaultWidth+10),TableItem.defaultHeight/4)
 
         self.gobj = QtGui.QGraphicsPathItem(path, self)
-        self.gobj.setToolTip("Need to see what to show unlike conc/nint for pool")
+        #self.gobj.setToolTip("Need to see what to show unlike conc/nint for pool")
+        tabledoc = (element(self.mobj.path)).outputValue
+        self.gobj.setToolTip(str(tabledoc))
         self.gobj.setPen(QtGui.QPen(QtCore.Qt.black, 2,Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
         self.gobj.mobj = self.mobj
 
@@ -350,9 +357,10 @@ class ReacItem(KineticsDisplayItem):
         self.gobj.setPath(path)
         ReacPen = self.gobj.pen()
         defaultpenwidth = ReacItem.defaultPenWidth
-        reacWidth =  ReacItem.defaultPenWidth*scale
+        reacWidth =  defaultpenwidth*scale
         ReacPen.setWidth(reacWidth)
         self.gobj.setPen(ReacPen)
+
     def setDisplayProperties(self, x,y,textcolor,bgcolor):
         """Set the display properties of this item."""
         self.setGeometry(x,y, 

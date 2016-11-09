@@ -2,6 +2,7 @@ import sys
 from PyQt4 import QtGui, QtCore, Qt
 from default import *
 from moose import *
+from moose.genesis import write
 #sys.path.append('plugins')
 from mplugin import *
 from kkitUtil import *
@@ -42,10 +43,11 @@ class KkitPlugin(MoosePlugin):
     def SaveModelDialogSlot(self):
         type_sbml = 'SBML'
         type_genesis = 'Genesis'
+        dirpath = ""
         # if moose.Annotator(self.modelRoot+'/model/info'):
         #     moose.Annotator(self.modelRoot+'/model/info')
         # mooseAnno = moose.Annotator(self.modelRoot+'/model/info')
-        dirpath = mooseAnno.dirpath
+        #dirpath = mooseAnno.dirpath
         if not dirpath:
             dirpath = expanduser("~")
         filters = {'SBML(*.xml)': type_sbml,'Genesis(*.g)':type_genesis}
@@ -57,8 +59,7 @@ class KkitPlugin(MoosePlugin):
             if str(filter_).rfind('.') != -1:
                 extension = filter_[str(filter_).rfind('.'):len(filter_)-1]
         if filename:
-
-            filename = filename+extension
+            filename = filename
             if filters[str(filter_)] == 'SBML':
                 writeerror = moose.writeSBML(self.modelRoot,str(filename))
                 if writeerror == -2:
@@ -73,10 +74,11 @@ class KkitPlugin(MoosePlugin):
                 #self.test = KkitEditorView(self).getCentralWidget().mooseId_GObj
                 filename = filename
                 self.test = None
-                writeerror = moose.genesis.write(self.modelRoot,str(filename),self.test)
+                writeerror = write(self.modelRoot,str(filename),self.test)
                 if writeerror == False:
                     QtGui.QMessageBox.information(None,'Could not save the Model','\nCheck the file')
-
+                else:
+                    QtGui.QMessageBox.information(None,'Saved the Model','\n File saved to \'{filename}\''.format(filename =filename+'.g'),QtGui.QMessageBox.Ok)
 
     def getPreviousPlugin(self):
         return None
@@ -141,6 +143,10 @@ class AnotherKkitRunView(RunView):
         self.plugin    = plugin
         self.schedular = None
 
+    def setSolverFromSettings(self, chemicalSettings):
+        self.setSolver(self.modelRoot,
+                       chemicalSettings["simulation"]["solver"])
+
     def createCentralWidget(self):
         self._centralWidget = RunWidget.RunWidget(self.modelRoot)
         self.kkitRunView   = KkitRunView(self.plugin)
@@ -153,7 +159,7 @@ class AnotherKkitRunView(RunView):
         self.schedular.runner.simulationProgressed.connect(self.kkitRunView.getCentralWidget().changeBgSize)
         self.schedular.runner.simulationReset.connect(self.kkitRunView.getCentralWidget().resetColor)
         # self.schedular.runner.simulationReset.connect(self.setSolver)
-        self.schedular.preferences.applyChemicalSettings.connect(lambda x : self.setSolver(self.modelRoot,x["simulation"]["solver"]))
+        self.schedular.preferences.applyChemicalSettings.connect(self.setSolverFromSettings)
         compt = moose.wildcardFind(self.modelRoot+'/##[ISA=ChemCompt]')
         ann = moose.Annotator(self.modelRoot+'/info')
         if compt:
@@ -359,6 +365,7 @@ class  KineticsWidget(EditorWidgetBase):
                 self.setLayout(hLayout)
                 hLayout.addWidget(self.view)
                 self.view.fitInView(self.sceneContainer.itemsBoundingRect().x()-10,self.sceneContainer.itemsBoundingRect().y()-10,self.sceneContainer.itemsBoundingRect().width()+20,self.sceneContainer.itemsBoundingRect().height()+20,Qt.Qt.IgnoreAspectRatio)
+
     def getMooseObj(self):
         #This fun call 2 more function
         # -- setupMeshObj(self.modelRoot),
@@ -413,7 +420,8 @@ class  KineticsWidget(EditorWidgetBase):
                     item.updateSlot()
                     #once the text is edited in editor, laydisplay gets updated in turn resize the length, positionChanged signal shd be emitted
                     self.positionChange(mooseObject)
-
+                    self.view.removeConnector()
+                    self.view.showConnector(item)
     def updateColorSlot(self,mooseObject, color):
         #Color slot for changing background color for PoolItem from objecteditor
         anninfo = moose.Annotator(mooseObject.path+'/info')
@@ -498,8 +506,8 @@ class  KineticsWidget(EditorWidgetBase):
     def comptChilrenBoundingRect(self):
         for k, v in self.qGraCompt.items():
             # compartment's rectangle size is calculated depending on children
-            rectcompt = v.childrenBoundingRect()
-
+            #rectcompt = v.childrenBoundingRect()
+            rectcompt = calculateChildBoundingRect(v)
             v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
             v.setPen(QtGui.QPen(Qt.QColor(66,66,66,100), self.comptPen, Qt.Qt.SolidLine, Qt.Qt.RoundCap, Qt.Qt.RoundJoin))
 
@@ -681,11 +689,13 @@ class  KineticsWidget(EditorWidgetBase):
                         self.updateCompartmentSize(v)
                 else:
                     #if already built model then compartment size depends on max and min objects
+                    rectcompt = calculateChildBoundingRect(v)
                     v.setRect(rectcompt.x()-10,rectcompt.y()-10,(rectcompt.width()+20),(rectcompt.height()+20))
 
     def updateCompartmentSize(self, compartment):
         compartmentBoundary = compartment.rect()
-        childrenBoundary    = compartment.childrenBoundingRect()
+        #childrenBoundary    = compartment.childrenBoundingRect()
+        childrenBoundary = calculateChildBoundingRect(compartment)
         x = min(compartmentBoundary.x(), childrenBoundary.x())
         y = min(compartmentBoundary.y(), childrenBoundary.y())
         width = max(compartmentBoundary.width(), childrenBoundary.width())
@@ -750,7 +760,8 @@ class  KineticsWidget(EditorWidgetBase):
             self.updateArrow(mobj)
             mooseObjcompt = self.findparent(mooseObject)
             v = self.qGraCompt[mooseObjcompt]
-            childBoundingRect = v.childrenBoundingRect()
+            #childBoundingRect = v.childrenBoundingRect()
+            childBoundingRect = calculateChildBoundingRect(v)
             comptBoundingRect = v.boundingRect()
             rectcompt = comptBoundingRect.united(childBoundingRect)
             comptPen = v.pen()
@@ -808,7 +819,9 @@ class kineticEditorWidget(KineticsWidget):
                 button.setDefaultAction(action)
                 #set the unicode instead of image by setting
                 #button.setText(unicode(u'\u20de'))
-                button.setIcon(QtGui.QIcon("icons/classIcon/"+action.text()+".png"))
+                Iconpath = os.path.join(config.MOOSE_GUI_DIR, 'icons/classIcon/')
+                button.setIcon(QtGui.QIcon(Iconpath+action.text()+".png"))
+                #button.setIcon(QtGui.QIcon("icons/classIcon/"+action.text()+".png"))
                 #button.setIconSize(QtCore.QSize(200,200))
                 self._insertToolBar.addWidget(button)
         return self._toolBars

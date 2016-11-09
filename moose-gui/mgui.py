@@ -85,9 +85,9 @@ subtype_plugin_map = {  'genesis/kkit': 'kkit'
                      ,  'xml/neuroml': 'NeuroKit'
                      }
 
-APPLICATION_ICON_PATH = os.path.join( os.path.dirname(os.path.realpath(__file__))
-                                    , "icons/moose_icon.png"
-                                    )
+#APPLICATION_ICON_PATH = os.path.join( os.path.dirname(os.path.realpath(__file__))
+#                                    , "icons/moose_icon.png"
+#                                    )
 
 
 def busyCursor():
@@ -158,7 +158,7 @@ class MWindow(QtGui.QMainWindow):
         self.quitAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         self.getMyDockWidgets()
         self.setCentralWidget(self.mdiArea)
-        self.setWindowIcon(QIcon(APPLICATION_ICON_PATH))
+        #self.setWindowIcon(QIcon(APPLICATION_ICON_PATH))
         
         # pixmap = QPixmap("icons/moose_icon.png")
 
@@ -289,7 +289,6 @@ class MWindow(QtGui.QMainWindow):
         return dialog
 
     def run_genesis_script(self,filepath,solver):
-        print " solver at mgui 292 ",solver,filepath
         self.popup.hide()
         abspath = os.path.abspath(filepath)
         directory, modulename = os.path.split(abspath)
@@ -541,11 +540,8 @@ class MWindow(QtGui.QMainWindow):
     def switchSubwindowSlot(self, window):
         """Change view based on what subwindow `window` is activated."""
         if not window:
-            #print 'Window is None'
             return
         view = str(window.windowTitle()).partition(':')[0]
-        #print 'activated', window.windowTitle(), 'view=', view
-        #print 'setting current view'
         self.setCurrentView(view)
 
     def setCurrentView(self, view):
@@ -638,7 +634,7 @@ class MWindow(QtGui.QMainWindow):
                                         ("Fig2D (35s)",     "../moose-examples/paper-2015/Fig2_elecModels/Fig2D.py"),
                                         ("Fig2E (5s)" ,     "../moose-examples/paper-2015/Fig2_elecModels/Fig2E.py"),
                                         ("Fig3B_Gssa (2s)", "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
-                                        ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),    
+                                        ("Fig3C_Gsl (2s)",  "../moose-examples/paper-2015/Fig3_chemModels/Fig3ABC.g"),
                                         ("Fig3D (1s)",      "../moose-examples/paper-2015/Fig3_chemModels/Fig3D.py"),
                                         ("Fig4B (10s)",     "../moose-examples/paper-2015/Fig4_ReacDiff/Fig4B.py"  ),
                                         ("Fig4K",           "../moose-examples/paper-2015/Fig4_ReacDiff/rxdSpineSize.py"),
@@ -655,7 +651,6 @@ class MWindow(QtGui.QMainWindow):
                 t = QtGui.QAction(k[0],self)
                 self.subMenu.addAction(t)
                 if k[0] == "Fig3C_Gsl (2s)":
-                    print " gsl"
                     t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gsl"))
                 elif k[0] == "Fig3B_Gssa (2s)":
                     t.connect(t,QtCore.SIGNAL('triggered()'),lambda script = k[1]: self.run_genesis_script(script,"gssa"))
@@ -835,17 +830,26 @@ class MWindow(QtGui.QMainWindow):
             self.viewActions = [self.editorViewAction, self.runViewAction]
         return self.viewActions
 
+    def setTabbedView(self):
+        self.mdiArea.setViewMode(QtGui.QMdiArea.TabbedView)
+
+    def setSubWindowView(self):
+        self.mdiArea.setViewMode(QtGui.QMdiArea.SubWindowView)
+
     def getSubWindowActions(self):
         if not hasattr(self, 'subWindowActions') or self.subWindowActions is None:
             self.tabbedViewAction = QtGui.QAction('&Tabbed view', self)
-            self.tabbedViewAction.triggered.connect(lambda : self.mdiArea.setViewMode(QtGui.QMdiArea.TabbedView))
+            self.tabbedViewAction.triggered.connect(self.setTabbedView)
             self.subWindowViewAction = QtGui.QAction('&SubWindow view', self)
-            self.subWindowViewAction.triggered.connect(lambda : self.mdiArea.setViewMode(QtGui.QMdiArea.SubWindowView))
+            self.subWindowViewAction.triggered.connect(self.setSubWindowView)
             self.tileSubWindowsAction = QtGui.QAction('Ti&le subwindows', self)
             self.tileSubWindowsAction.triggered.connect(self.mdiArea.tileSubWindows)
             self.cascadeSubWindowsAction = QtGui.QAction('&Cascade subwindows', self)
             self.cascadeSubWindowsAction.triggered.connect(self.mdiArea.cascadeSubWindows)
-            self.subWindowActions = [self.tabbedViewAction, self.subWindowViewAction, self.tileSubWindowsAction, self.cascadeSubWindowsAction]
+            self.subWindowActions = [self.tabbedViewAction,
+                                     self.subWindowViewAction,
+                                     self.tileSubWindowsAction,
+                                     self.cascadeSubWindowsAction]
         return self.subWindowActions
 
     def getDockWidgetsToggleActions(self):
@@ -873,9 +877,11 @@ class MWindow(QtGui.QMainWindow):
             self.connect(self.actionAbout, QtCore.SIGNAL('triggered()'), self.showAboutMoose)
             self.actionBuiltInDocumentation = QtGui.QAction('Built-in documentation', self)
             self.connect(self.actionBuiltInDocumentation, QtCore.SIGNAL('triggered()'), self.showBuiltInDocumentation)
-            self.actionBug = QtGui.QAction('Report a bug', self)
-            self.connect(self.actionBug, QtCore.SIGNAL('triggered()'), self.reportBug)
-            self.helpActions = [self.actionAbout, self.actionBuiltInDocumentation, self.actionBug]
+            self.actionGuiBug = QtGui.QAction('Report gui bug', self)
+            self.connect(self.actionGuiBug, QtCore.SIGNAL('triggered()'), self.reportGuiBug)
+            self.actionCoreBug = QtGui.QAction('Report core bug', self)
+            self.connect(self.actionCoreBug, QtCore.SIGNAL('triggered()'), self.reportCoreBug)
+            self.helpActions = [self.actionAbout, self.actionBuiltInDocumentation, self.actionCoreBug,self.actionGuiBug]
         return self.helpActions
     # Removed from the main menu item replace with File menu
     # def getConnectActions(self):
@@ -923,6 +929,8 @@ class MWindow(QtGui.QMainWindow):
             QtGui.QMessageBox.about(self, 'About MOOSE', ''.join(aboutfile.readlines()))
 
     def showDocumentation(self, source):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_DOC_URL))
+        '''
         if not hasattr(self, 'documentationViewer'):
             self.documentationViewer = QtGui.QTextBrowser()
             self.documentationViewer.setOpenLinks(True)
@@ -940,10 +948,15 @@ class MWindow(QtGui.QMainWindow):
         self.documentationViewer.setWindowTitle(source)
         self.documentationViewer.reload()
         self.documentationViewer.setVisible(True)
-
+        '''
+    def reportGuiBug(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_GUI_BUG_URL))
+    def reportCoreBug(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_CORE_BUG_URL))
+    '''        
     def reportBug(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(config.MOOSE_REPORT_BUG_URL))
-
+    '''
     def showBuiltInDocumentation(self):
         self.showDocumentation('moose_builtins.html')
 
@@ -1059,9 +1072,7 @@ class MWindow(QtGui.QMainWindow):
         else :
             neurons = moose.wildcardFind(modelPath + "/model/cells/##[ISA=Neuron]")
             for neuron in neurons:
-                #print(neuron)
                 solver = moose.element(neuron.path + "/hsolve")
-                # print("Disabling => ", solver)
                 solver.tick = -1
         for table in moose.wildcardFind( modelPath+'/data/graph#/#' ):
             table.tick = -1
@@ -1095,7 +1106,6 @@ class MWindow(QtGui.QMainWindow):
                 modelName = dialog.getTargetPath()
                 if '/' in modelName:
                     raise mexception.ElementNameError('Model name cannot contain `/`')
-                print " fileNames ",fileName, " modelName ",modelName
                 ret = loadFile(str(fileName),'%s' %(modelName),merge=False)
                 #ret = loadFile(str(fileName), '/model/%s' % (modelName), merge=False)
 		        #Harsha: This will clear out object editor's objectpath and make it invisible
@@ -1161,8 +1171,8 @@ def main():
     # create the GUI application
     app = QtGui.QApplication(sys.argv)
     QtGui.qApp = app
-    icon = QtGui.QIcon(os.path.join(config.KEY_ICON_DIR,'moose_icon.png'))
-    app.setWindowIcon(icon)
+    #icon = QtGui.QIcon(os.path.join(config.KEY_ICON_DIR,'moose_icon.png'))
+    #app.setWindowIcon(icon)
     # instantiate the main window
     #moose.loadModel('../Demos/Genesis_files/Kholodenko.g','/kho')
     mWindow =  MWindow()
